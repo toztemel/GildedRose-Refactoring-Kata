@@ -2,57 +2,48 @@ package com.gildedrose
 
 class GildedRose(val items: Array[Item]) {
 
+  private def incQuality(item: Item): Unit =
+    item.quality = Math.min(50, item.quality + 1)
+
+  private def decQuality(item: Item): Unit =
+    item.quality = Math.max(0, item.quality - 1)
+
+  private def resetQuality(item: Item): Unit =
+    item.quality = 0
+
+  private def decSellIn(item: Item): Unit =
+    item.sellIn = item.sellIn - 1
+
+  private def applyIfExpired(item: Item)(f: Item => Unit): Unit =
+    if (item.sellIn < 0) f(item)
 
   def updateQuality() {
-    for (i <- 0 until items.length) {
-      if (!items(i).name.equals("Aged Brie")
-        && !items(i).name.equals("Backstage passes to a TAFKAL80ETC concert")) {
-        if (items(i).quality > 0) {
-          if (!items(i).name.equals("Sulfuras, Hand of Ragnaros")) {
-            items(i).quality = items(i).quality - 1
-          }
-        }
-      } else {
-        if (items(i).quality < 50) {
-          items(i).quality = items(i).quality + 1
+    items.
+      collect {
+        case item: Item if item.name.equals("Sulfuras, Hand of Ragnaros") =>
+          ()
 
-          if (items(i).name.equals("Backstage passes to a TAFKAL80ETC concert")) {
-            if (items(i).sellIn < 11) {
-              if (items(i).quality < 50) {
-                items(i).quality = items(i).quality + 1
-              }
-            }
+        case item: Item if (item.name.equals("Aged Brie")) =>
+          incQuality(item)
+          decSellIn(item)
+          applyIfExpired(item)(incQuality)
 
-            if (items(i).sellIn < 6) {
-              if (items(i).quality < 50) {
-                items(i).quality = items(i).quality + 1
-              }
-            }
+        case item: Item if (item.name.equals("Backstage passes to a TAFKAL80ETC concert")) =>
+          incQuality(item)
+          if (item.sellIn < 11) {
+            incQuality(item)
           }
-        }
+          if (item.sellIn < 6) {
+            incQuality(item)
+          }
+          decSellIn(item)
+          applyIfExpired(item)(resetQuality)
+
+        case item: Item =>
+          decQuality(item)
+          decSellIn(item)
+          applyIfExpired(item)(decQuality)
       }
-
-      if (!items(i).name.equals("Sulfuras, Hand of Ragnaros")) {
-        items(i).sellIn = items(i).sellIn - 1
-      }
-
-      if (items(i).sellIn < 0) {
-        if (!items(i).name.equals("Aged Brie")) {
-          if (!items(i).name.equals("Backstage passes to a TAFKAL80ETC concert")) {
-            if (items(i).quality > 0) {
-              if (!items(i).name.equals("Sulfuras, Hand of Ragnaros")) {
-                items(i).quality = items(i).quality - 1
-              }
-            }
-          } else {
-            items(i).quality = items(i).quality - items(i).quality
-          }
-        } else {
-          if (items(i).quality < 50) {
-            items(i).quality = items(i).quality + 1
-          }
-        }
-      }
-    }
   }
+
 }
