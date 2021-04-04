@@ -2,21 +2,6 @@ package com.gildedrose
 
 class GildedRose(val items: Array[Item]) {
 
-  private def incQuality(item: Item): Unit =
-    item.quality = Math.min(50, item.quality + 1)
-
-  private def decQuality(item: Item): Unit =
-    item.quality = Math.max(0, item.quality - 1)
-
-  private def resetQuality(item: Item): Unit =
-    item.quality = 0
-
-  private def decSellIn(item: Item): Unit =
-    item.sellIn = item.sellIn - 1
-
-  private def applyIfExpired(item: Item)(f: Item => Unit): Unit =
-    if (item.sellIn < 0) f(item)
-
   def updateQuality() {
     items.
       collect {
@@ -24,26 +9,54 @@ class GildedRose(val items: Array[Item]) {
           ()
 
         case item: Item if (item.name.equals("Aged Brie")) =>
-          incQuality(item)
-          decSellIn(item)
-          applyIfExpired(item)(incQuality)
+          item.incQuality
+          item.decSellIn
+          item.applyIfExpired(_.incQuality)
 
         case item: Item if (item.name.equals("Backstage passes to a TAFKAL80ETC concert")) =>
-          incQuality(item)
+          item.incQuality
           if (item.sellIn < 11) {
-            incQuality(item)
+            item.incQuality
           }
           if (item.sellIn < 6) {
-            incQuality(item)
+            item.incQuality
           }
-          decSellIn(item)
-          applyIfExpired(item)(resetQuality)
+          item.decSellIn
+          item.applyIfExpired(_.resetQuality)
+
+        case item: Item if (item.name.equals("Conjured")) =>
+          item.decQuality
+          item.decQuality
+          item.decSellIn
+          item.applyIfExpired(_.decQuality)
+          item.applyIfExpired(_.decQuality)
 
         case item: Item =>
-          decQuality(item)
-          decSellIn(item)
-          applyIfExpired(item)(decQuality)
+          item.decQuality
+          item.decSellIn
+          item.applyIfExpired(_.decQuality)
       }
+  }
+
+  implicit class ItemOps(item: Item) {
+    val MaxQuality = 50
+    val MinQuality = 0
+
+    def incQuality(): Unit =
+      item.quality = Math.min(MaxQuality, item.quality + 1)
+
+    def decQuality(): Unit =
+      item.quality = Math.max(MinQuality, item.quality - 1)
+
+    def resetQuality(): Unit =
+      item.quality = MinQuality
+
+    def decSellIn(): Unit =
+      item.sellIn = item.sellIn - 1
+
+    def applyIfExpired(f: Item => Unit): Unit =
+      if (item.sellIn < 0) f(item)
+
   }
 
 }

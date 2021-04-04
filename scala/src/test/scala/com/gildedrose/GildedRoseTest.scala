@@ -62,7 +62,7 @@ class GildedRoseTest extends AnyFlatSpec with Matchers with BeforeAndAfter {
     app.updateQuality()
 
     normal.quality should equal(8)
-    //    conjured.quality should equal(6)
+    conjured.quality should equal(6)
   }
 
   behavior of "Aged Brie"
@@ -153,6 +153,5 @@ class GildedRoseTest extends AnyFlatSpec with Matchers with BeforeAndAfter {
 
     conjured.quality should equal(8)
   }
-
 
 }
