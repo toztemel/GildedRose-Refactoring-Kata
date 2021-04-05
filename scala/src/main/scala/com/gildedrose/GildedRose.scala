@@ -10,8 +10,7 @@ class GildedRose(val items: Array[Item]) {
   ).withDefaultValue(Normal)
 
   def updateQuality(): Unit =
-    items.
-      foreach(item => itemToUpdate(item.name)(item))
+    items.foreach(item => itemToUpdate(item.name)(item))
 
   implicit class ItemOps(item: Item) {
     val MaxQuality = 50
@@ -35,17 +34,18 @@ class GildedRose(val items: Array[Item]) {
 
     protected def updateQuality(item: Item): Unit
 
+    private def updateSellIn(item: Item): Unit = {
+      item.decSellIn()
+    }
+
     protected def onExpiry(item: Item): Unit
 
     def apply(item: Item): Unit = {
       updateQuality(item)
       updateSellIn(item)
-      item.applyIfExpired(item => onExpiry(item))
+      item.applyIfExpired(onExpiry)
     }
 
-    private def updateSellIn(item: Item): Unit = {
-      item.decSellIn()
-    }
   }
 
   case object Normal extends Update {
